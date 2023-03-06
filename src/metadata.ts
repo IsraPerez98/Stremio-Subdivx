@@ -18,11 +18,9 @@ export async function ObtenerTitulos(type: ContentType, meta_id: string) : Promi
 
     //generar objeto con los titulos
     const titulos = {
-        ...resultados[1],
         ...resultados[0],
+        ...resultados[1],
     };
-
-    console.log('titulos', titulos);
     return titulos;
 }
 

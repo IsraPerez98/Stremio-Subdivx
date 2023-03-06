@@ -4,6 +4,8 @@ const { addonBuilder, serveHTTP } = stremioSDK;
 import type {ContentType, Subtitle, Manifest} from "stremio-addon-sdk";
 
 import { ObtenerTitulos } from "./metadata";
+import { obtenerIDTuSubtitulo } from "./scrapping/id";
+import { obtenerSubtitulos } from "./scrapping/subtitulo";
 
 const manifest : Manifest = {
     id: "org.example.hello-world",
@@ -11,7 +13,7 @@ const manifest : Manifest = {
     name: "Hello World",
     description: "Hello World Addon",
     resources: ["subtitles"],
-    types: ["movie", "series"],
+    types: ["series"],
     idPrefixes: ["tt"],
     catalogs: [],
 };
@@ -19,7 +21,7 @@ const manifest : Manifest = {
 const builder = new addonBuilder(manifest);
 
 
-builder.defineSubtitlesHandler(function(args: {
+builder.defineSubtitlesHandler(async function(args: {
     type: ContentType;
     id: string;
     extra: {
@@ -34,16 +36,33 @@ builder.defineSubtitlesHandler(function(args: {
     };
 }): Promise<{ subtitles: Subtitle[] }> {
 
+    if (args.type !== "series") {
+        return Promise.resolve({ subtitles: [] });
+    }
+
     console.log({args})
 
-    ObtenerTitulos(args.type, args.id);
+    const titulos = await ObtenerTitulos(args.type, args.id);
+
+    console.log({titulos});
+
+    const idTuSubtitulo = await obtenerIDTuSubtitulo(titulos);
+
+    console.log({idTuSubtitulo});
+
+    if (idTuSubtitulo === null) {
+        console.log(`${titulos.english} no tiene subtitulos en tuSubtitulo}`);
+        return Promise.resolve({ subtitles: [] });
+    }
+
+    const temporada = Number(args.id.split(":")[1]);
+    const capitulo = Number(args.id.split(":")[2]);
+
+    const subtitulos: Subtitle[] = await obtenerSubtitulos(idTuSubtitulo, temporada, capitulo);
+
+    console.log({subtitulos});
     
-    const subtitle = {
-        url: 'https://mkvtoolnix.download/samples/vsshort-en.srt',
-        lang: 'TEST'
-    };
-    
-    return Promise.resolve({ subtitles: [subtitle] });
+    return Promise.resolve({ subtitles: subtitulos });
 });
 
 serveHTTP(builder.getInterface(), { port: 7000 });
