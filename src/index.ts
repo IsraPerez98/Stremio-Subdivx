@@ -24,6 +24,8 @@ const manifest : Manifest = {
     types: ["series"],
     idPrefixes: ["tt"],
     catalogs: [],
+    logo: `http://${HOST}:${PORT}/logo`,
+    background: `http://${HOST}:${PORT}/logo`,
 };
 
 const builder = new addonBuilder(manifest);
@@ -84,6 +86,14 @@ const server = express();
 server.use("/", router);
 
 server.use("/", subtitulosRouter);
+
+server.get('/background', (req: express.Request, res: express.Response) => {
+    res.sendFile(__dirname + '/img/background.png');
+});
+
+server.get('/logo', (req: express.Request, res: express.Response) => {
+    res.sendFile(__dirname + '/img/logo.png');
+});
 
 server.listen(PORT, () => {
     console.log(`HTTP addon accessible at: http://${HOST}:${PORT}/manifest.json`);

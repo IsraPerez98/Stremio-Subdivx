@@ -7,8 +7,8 @@ const idiomas : {[key: string]: string[]} = { // ISO 639-2 (se añade categoria 
     'english (us)': ['eng'],
     'english (uk)': ['eng'],
     'español': ['spa'],
-    'español (españa)': ['spa', 'ES-es'],
-    'español (latinoamérica)': ['spa', 'ES-lat'],
+    'español (españa)': ['spa', 'esES'],
+    'español (latinoamérica)': ['spa', 'esLAT'],
     'català': ['cat'],
 }
 
