@@ -7,8 +7,8 @@ const idiomas : {[key: string]: string[]} = { // ISO 639-2 (se añade categoria 
     'english (us)': ['eng'],
     'english (uk)': ['eng'],
     'español': ['spa'],
-    'español (españa)': ['spa', 'Español Es'],
-    'español (latinoamérica)': ['spa', 'Español La'],
+    'español (españa)': ['spa', 'ES-es'],
+    'español (latinoamérica)': ['spa', 'ES-lat'],
     'català': ['cat'],
 }
 
@@ -44,7 +44,7 @@ function generarSubtitulos(url: string, idioma: string): Subtitle[] {
 }
 
 
-function extraerSubtitulos(element: cheerio.Element) {
+function extraerSubtitulos(element: cheerio.Element): Subtitle[] {
     const $ = cheerio.load(element);
 
     const subtitulos: Subtitle[] = [];

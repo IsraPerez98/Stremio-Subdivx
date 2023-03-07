@@ -1,17 +1,25 @@
+import dotenv from "dotenv";
+dotenv.config();
 import stremioSDK from "stremio-addon-sdk";
-const { addonBuilder, serveHTTP } = stremioSDK;
+const { addonBuilder, getRouter } = stremioSDK;
 
+import express from "express";
 import type {ContentType, Subtitle, Manifest} from "stremio-addon-sdk";
 
 import { ObtenerTitulos } from "./metadata";
 import { obtenerIDTuSubtitulo } from "./scrapping/id";
 import { obtenerSubtitulos } from "./scrapping/subtitulo";
 
+import subtitulosRouter from "./server/subtitulos";
+
+const PORT = process.env.PORT || 7000;
+const HOST = process.env.HOST || "127.0.0.1";
+
 const manifest : Manifest = {
-    id: "org.example.hello-world",
+    id: "com.github.IsraPerez98.Stremio-TuSubtitulo",
     version: "1.0.0",
-    name: "Hello World",
-    description: "Hello World Addon",
+    name: "Tu Subtitulo",
+    description: "Obtiene subtitulos de series en español de españa, español latino, catalán e inglés de TuSubtitulo.com, este addon no está afiliado a TuSubtitulo.com",
     resources: ["subtitles"],
     types: ["series"],
     idPrefixes: ["tt"],
@@ -19,7 +27,6 @@ const manifest : Manifest = {
 };
 
 const builder = new addonBuilder(manifest);
-
 
 builder.defineSubtitlesHandler(async function(args: {
     type: ContentType;
@@ -60,9 +67,24 @@ builder.defineSubtitlesHandler(async function(args: {
 
     const subtitulos: Subtitle[] = await obtenerSubtitulos(idTuSubtitulo, temporada, capitulo);
 
+    subtitulos.forEach((subtitulo) => {
+        const url = subtitulo.url.replace(/^\/+/g, '');
+        subtitulo.url = `http://${HOST}:${PORT}/${url}`;
+    });
+
     console.log({subtitulos});
     
     return Promise.resolve({ subtitles: subtitulos });
 });
 
-serveHTTP(builder.getInterface(), { port: 7000 });
+const router = getRouter(builder.getInterface());
+
+const server = express();
+
+server.use("/", router);
+
+server.use("/", subtitulosRouter);
+
+server.listen(PORT, () => {
+    console.log(`HTTP addon accessible at: http://${HOST}:${PORT}/manifest.json`);
+});
