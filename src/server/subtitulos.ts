@@ -1,7 +1,6 @@
 import express, { Router } from "express";
 import axios, { AxiosRequestConfig } from "axios";
-
-import fs from "fs";
+import iconv from "iconv-lite";
 
 const router = Router();
 
@@ -11,7 +10,6 @@ function getPHPSessionID() {
 }
 
 async function getSubtitulos(chunks: string[]) : Promise<string> {
-    console.log({chunks});
     const cookiePHPSessionID = getPHPSessionID();
 
     const url = (chunks.length === 3) ? `https://www.tusubtitulo.com/updated/${chunks[0]}/${chunks[1]}/${chunks[2]}` :  `https://www.tusubtitulo.com/original/${chunks[0]}/${chunks[1]}`;
@@ -19,10 +17,10 @@ async function getSubtitulos(chunks: string[]) : Promise<string> {
     const options: AxiosRequestConfig = {
         method: 'GET',
         url: url,
-        responseEncoding: 'UTF8',
         withCredentials: true,
+        responseType: "arraybuffer",
         headers: {
-            'Accept-Encoding': 'text/srt; charset=utf-8',
+            'Accept-Encoding': 'application/json. text/srt, text/plain, */*',
             'Cookie': `PHPSESSID=${cookiePHPSessionID}`,
             'Referer': 'https://www.tusubtitulo.com/',
         },
@@ -30,7 +28,9 @@ async function getSubtitulos(chunks: string[]) : Promise<string> {
 
     const response = await axios.request(options);
 
-    return response.data;
+    const data =  iconv.decode(response.data, 'win1252');
+
+    return data;
 }
 
 
