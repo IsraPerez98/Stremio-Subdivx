@@ -1,6 +1,9 @@
 import express, { Router } from "express";
 import axios, { AxiosRequestConfig } from "axios";
 import iconv from "iconv-lite";
+import NodeCache from "node-cache";
+
+const subtitulosCache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 60 * 60 * 24 });
 
 const router = Router();
 
@@ -35,15 +38,28 @@ async function getSubtitulos(chunks: string[]) : Promise<string> {
 
 
 async function procesarRequestSubtitulos(chunks: string[], req: express.Request, res: express.Response) : Promise<void> {
-    const subtitulos = await getSubtitulos(chunks);
-
+    
     res.setHeader("Content-Type", "text/srt;charset=UTF-8",);
 
-    res.setHeader("Content-Disposition", `attachment; filename="subtitulos.srt"`)
+    res.setHeader("Content-Disposition", `attachment; filename="subtitulos.srt"`);
 
-    res.write(subtitulos);
+    const subtitulos: string | undefined = subtitulosCache.get(chunks.join("-"));
+
+    if(subtitulos) {
+        console.log("Cache hit for: " + chunks.join("-"));
+        res.write(subtitulos);
+        res.end();
+        return;
+    }
+
+
+    const subtitulosNuevos = await getSubtitulos(chunks);
+
+    res.write(subtitulosNuevos);
 
     res.end();
+
+    subtitulosCache.set(chunks.join("-"), subtitulosNuevos);
 }
 
 router.get("/updated/:chunk0/:chunk1/:chunk2", async (req: express.Request, res: express.Response) : Promise<void> => {
