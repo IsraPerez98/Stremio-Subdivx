@@ -55,11 +55,11 @@ async function procesarRequestSubtitulos(chunks: string[], req: express.Request,
 
     const subtitulosNuevos = await getSubtitulos(chunks);
 
+    subtitulosCache.set(chunks.join("-"), subtitulosNuevos);
+
     res.write(subtitulosNuevos);
 
     res.end();
-
-    subtitulosCache.set(chunks.join("-"), subtitulosNuevos);
 }
 
 router.get("/updated/:chunk0/:chunk1/:chunk2", async (req: express.Request, res: express.Response) : Promise<void> => {
