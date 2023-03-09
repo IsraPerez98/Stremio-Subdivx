@@ -17,6 +17,16 @@ interface Indice {
     id: number | null;
 }
 
+function limpiarTitulo(titulo: string) : string {
+    let tituloNuevo = titulo.toLowerCase();
+
+    tituloNuevo = tituloNuevo.replace(/\(\d+\)/, "") // eliminar el año
+
+    tituloNuevo = tituloNuevo.trim(); // eliminar espacios al inicio y al final
+
+    return tituloNuevo;
+}
+
 async function obtenerIndice() : Promise<Indice[]> {
     const urlSeries = "https://www.tusubtitulo.com/series.php?/";
 
@@ -31,10 +41,14 @@ async function obtenerIndice() : Promise<Indice[]> {
     let indice: Indice[] = [];
 
     $(mainTable).find('tr > td.line0').each((index, element) => {
-        const titulo = $(element).find('a').text();
+        let titulo = $(element).find('a').text();
+        titulo = limpiarTitulo(titulo);
+
         const url = $(element).find('a').attr('href');
 
         const id = Number(url?.split("/").pop()) || null;
+
+        indiceCache.set(titulo, id);
 
         indice.push({
             titulo,
@@ -47,7 +61,9 @@ async function obtenerIndice() : Promise<Indice[]> {
 
 export async function obtenerIDTuSubtitulo(titulos: Titulos) : Promise<number | null> {
 
-    const id: number | undefined = indiceCache.get(titulos.english);
+    const english = limpiarTitulo(titulos.english);
+
+    const id: number | undefined = indiceCache.get(english);
 
     if(id) {
         console.log(`Cache hit: ${titulos.english} -> ${id}`);
@@ -55,21 +71,19 @@ export async function obtenerIDTuSubtitulo(titulos: Titulos) : Promise<number | 
     }
 
     const indice = await obtenerIndice();
-
-    const english = titulos.english.toLowerCase();
     /*
     const spanish_mx = titulos.spanish_mx.toLowerCase();
     const spanish_es = titulos.spanish_es.toLowerCase();
     */
 
     const idNuevo = indice.find((element) => {
-        const titulo = element.titulo.toLowerCase();
+        const titulo = element.titulo;
 
         //return (titulo === english || titulo === spanish_mx || titulo === spanish_es);
         return (titulo === english);
     });
 
-    indiceCache.set(titulos.english, idNuevo?.id || null);
+    indiceCache.set(english, idNuevo?.id || null);
 
     return idNuevo?.id || null;
 }
