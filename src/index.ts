@@ -87,6 +87,10 @@ server.use("/", router);
 
 server.use("/", subtitulosRouter);
 
+server.get('/', (req: express.Request, res: express.Response) => {
+    res.redirect('/manifest.json');
+});
+
 server.get('/background', (req: express.Request, res: express.Response) => {
     res.sendFile(__dirname + '/img/background.png');
 });
