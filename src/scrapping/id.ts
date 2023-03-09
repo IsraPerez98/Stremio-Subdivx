@@ -1,5 +1,8 @@
 import axios from "axios";
 import * as cheerio from 'cheerio';
+import NodeCache from "node-cache";
+
+const indiceCache = new NodeCache();
 
 interface Titulos {
     /*
@@ -43,6 +46,14 @@ async function obtenerIndice() : Promise<Indice[]> {
 }
 
 export async function obtenerIDTuSubtitulo(titulos: Titulos) : Promise<number | null> {
+
+    const id: number | undefined = indiceCache.get(titulos.english);
+
+    if(id) {
+        console.log(`Cache hit: ${titulos.english} -> ${id}`);
+        return id;
+    }
+
     const indice = await obtenerIndice();
 
     const english = titulos.english.toLowerCase();
@@ -51,12 +62,14 @@ export async function obtenerIDTuSubtitulo(titulos: Titulos) : Promise<number | 
     const spanish_es = titulos.spanish_es.toLowerCase();
     */
 
-    const id = indice.find((element) => {
+    const idNuevo = indice.find((element) => {
         const titulo = element.titulo.toLowerCase();
 
         //return (titulo === english || titulo === spanish_mx || titulo === spanish_es);
         return (titulo === english);
     });
 
-    return id?.id || null;
+    indiceCache.set(titulos.english, idNuevo?.id || null);
+
+    return idNuevo?.id || null;
 }

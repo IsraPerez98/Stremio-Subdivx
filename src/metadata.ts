@@ -1,9 +1,8 @@
 import axios from "axios";
-
+import NodeCache from "node-cache";
 import { ContentType } from "stremio-addon-sdk";
 
-//pls don't steal
-const apikey = "af3ef9949108c67d7f2bc1604ee7959d";
+const tituloCache = new NodeCache();
 
 
 //export async function ObtenerTitulos(type: ContentType, meta_id: string) : Promise<{spanish_mx: string; spanish_es: string; english: string}> {
@@ -76,11 +75,25 @@ async function ObtenerTituloIngles(type: ContentType, meta_id: string) : Promise
 
         type === "movie" ? meta_id = meta_id : meta_id = meta_id.split(':')[0];
 
+        const titulo : string | undefined = tituloCache.get(type + meta_id);
+
+        if(titulo) {
+            console.log("Titulo en cache: " + titulo);
+            return {
+                english: titulo,
+            };
+        }
+
         const response = await axios.get(`https://v3-cinemeta.strem.io/meta/${type}/${meta_id}.json`);
 
-	    return {
-            english: response.data.meta.name,
+        const nuevoTitulo = response.data.meta.name;
+
+        tituloCache.set(type + meta_id, nuevoTitulo, 60 * 60 * 24 * 7);
+
+        return {
+            english: nuevoTitulo,
         };
+
     } catch (error: any) {
         //404
         if (error.response && error.response.status === 404) {
