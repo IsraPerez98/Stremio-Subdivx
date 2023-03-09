@@ -8,8 +8,8 @@ const subtitulosCache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 60 * 
 const router = Router();
 
 function getPHPSessionID() {
-    //TODO
-    return "24njkpf9esn2r6ndfse65rufm7";
+    // De alguna forma esto funciona ._.
+    return [...Array(26)].map(() => Math.random().toString(36)[2]).join('');
 }
 
 async function getSubtitulos(chunks: string[]) : Promise<string> {
