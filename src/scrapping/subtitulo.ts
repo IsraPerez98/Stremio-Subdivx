@@ -22,21 +22,22 @@ function convertirRelAURL(rel: string): string {
     }
 }
 
-function generarSubtitulos(url: string, idioma: string): Subtitle[] {
+function generarSubtitulos(rel: string, url: string, idioma: string): Subtitle[] {
     const idioma_clean = idioma.toLowerCase();
     if(!(idiomas.hasOwnProperty(idioma_clean))) {
         console.log(`Lenguaje desconocido: ${idioma}`);
         return [];
     }
 
-    const lenguajesISO: any = idiomas[idioma_clean];
+    const idiomasStremio: string[] = idiomas[idioma_clean];
 
     const subtitulos: Subtitle[] = [];
 
-    for (const lenguajeISO of lenguajesISO) {
+    for (const idiomaStremio of idiomasStremio) {
         subtitulos.push({
+            id: `${rel}-${idiomaStremio}`,
             url: url,
-            lang: lenguajeISO,
+            lang: idiomaStremio,
         });
     }
 
@@ -76,7 +77,7 @@ function extraerSubtitulos(element: cheerio.Element): Subtitle[] {
 
         const url = convertirRelAURL(rel);
 
-        const subtitulosGenerados = generarSubtitulos(url, language);
+        const subtitulosGenerados = generarSubtitulos(rel,url, language);
 
         subtitulos.push(...subtitulosGenerados);
     });
