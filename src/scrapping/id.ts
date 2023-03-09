@@ -2,8 +2,10 @@ import axios from "axios";
 import * as cheerio from 'cheerio';
 
 interface Titulos {
+    /*
     spanish_mx: string; 
     spanish_es: string; 
+    */
     english: string
 }
 
@@ -44,13 +46,16 @@ export async function obtenerIDTuSubtitulo(titulos: Titulos) : Promise<number | 
     const indice = await obtenerIndice();
 
     const english = titulos.english.toLowerCase();
+    /*
     const spanish_mx = titulos.spanish_mx.toLowerCase();
     const spanish_es = titulos.spanish_es.toLowerCase();
+    */
 
     const id = indice.find((element) => {
         const titulo = element.titulo.toLowerCase();
 
-        return (titulo === english || titulo === spanish_mx || titulo === spanish_es);
+        //return (titulo === english || titulo === spanish_mx || titulo === spanish_es);
+        return (titulo === english);
     });
 
     return id?.id || null;

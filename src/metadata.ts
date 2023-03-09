@@ -6,12 +6,13 @@ import { ContentType } from "stremio-addon-sdk";
 const apikey = "af3ef9949108c67d7f2bc1604ee7959d";
 
 
-export async function ObtenerTitulos(type: ContentType, meta_id: string) : Promise<{spanish_mx: string; spanish_es: string; english: string}> {
+//export async function ObtenerTitulos(type: ContentType, meta_id: string) : Promise<{spanish_mx: string; spanish_es: string; english: string}> {
+export async function ObtenerTitulos(type: ContentType, meta_id: string) : Promise<{english: string}> {
     /**Obtiene el titulo de una pelicula/serie en spanish_es spanish_mx y english */
     
     const promises = [
         ObtenerTituloIngles(type, meta_id),
-        ObtenerTitulosSpanish(type, meta_id),
+        //ObtenerTitulosSpanish(type, meta_id),
     ];
 
     const resultados = await Promise.all(promises);
@@ -24,8 +25,9 @@ export async function ObtenerTitulos(type: ContentType, meta_id: string) : Promi
     return titulos;
 }
 
+/*
 async function ObtenerTitulosSpanish(type: ContentType, meta_id: string) : Promise< any > {
-    /**Obtiene el titulo de una pelicula en spanish_es spanish_mx */
+    
     try {
 
         type === "movie" ? meta_id = meta_id : meta_id = meta_id.split(':')[0];
@@ -67,6 +69,7 @@ async function ObtenerTitulosSpanish(type: ContentType, meta_id: string) : Promi
         };
     };
 }
+*/
 
 async function ObtenerTituloIngles(type: ContentType, meta_id: string) : Promise<{ english: string; }> {
     try {
