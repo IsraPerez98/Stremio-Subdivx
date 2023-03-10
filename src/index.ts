@@ -1,19 +1,15 @@
-import dotenv from "dotenv";
-dotenv.config();
 import stremioSDK from "stremio-addon-sdk";
 const { addonBuilder, getRouter } = stremioSDK;
 
 import express from "express";
 import type {ContentType, Subtitle, Manifest} from "stremio-addon-sdk";
 
+import config from "./config";
+
 import { ObtenerTitulos } from "./metadata";
 import { obtenerIDTuSubtitulo } from "./scrapping/id";
 import { obtenerSubtitulos } from "./scrapping/subtitulo";
-
 import subtitulosRouter from "./server/subtitulos";
-
-const PORT = process.env.PORT || 7000;
-const HOST = process.env.HOST || "127.0.0.1";
 
 const manifest : Manifest = {
     id: "com.github.IsraPerez98.Stremio-TuSubtitulo",
@@ -24,8 +20,8 @@ const manifest : Manifest = {
     types: ["series"],
     idPrefixes: ["tt"],
     catalogs: [],
-    logo: `http://${HOST}:${PORT}/logo`,
-    background: `http://${HOST}:${PORT}/logo`,
+    logo: `${config.host}/logo`,
+    background: `${config.host}/logo`,
 };
 
 const builder = new addonBuilder(manifest);
@@ -71,7 +67,7 @@ builder.defineSubtitlesHandler(async function(args: {
 
     subtitulos.forEach((subtitulo) => {
         const url = subtitulo.url.replace(/^\/+/g, '');
-        subtitulo.url = `http://${HOST}:${PORT}/${url}`;
+        subtitulo.url = `${config.host}/${url}`;
     });
 
     console.log({subtitulos});
@@ -99,6 +95,6 @@ server.get('/logo', (req: express.Request, res: express.Response) => {
     res.sendFile(__dirname + '/img/logo.png');
 });
 
-server.listen(PORT, () => {
-    console.log(`HTTP addon accessible at: http://${HOST}:${PORT}/manifest.json`);
+server.listen(config.port, () => {
+    console.log(`HTTP addon accessible at: ${config.host}/manifest.json`);
 });
