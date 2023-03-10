@@ -1,5 +1,7 @@
-import dotenv from 'dotenv';
+import stremioSDK from "stremio-addon-sdk";
+const { publishToCentral } = stremioSDK;
 
+import dotenv from 'dotenv';
 dotenv.config();
 
 const nodeEnv = process.env.NODE_ENV ? 'beamup':'development';
@@ -19,6 +21,9 @@ function configBeamup() : void {
     console.log('process.env', process.env);
     config.host = 'https://58196d6c26cf-stremio-tusubtitulo.baby-beamup.club';
     config.port = Number(process.env.PORT);
+    
+    // Publicar en lista de addons
+    publishToCentral(`${config.host}/manifest.json`);
 }
 
 switch(nodeEnv) {

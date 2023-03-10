@@ -1,5 +1,5 @@
 import stremioSDK from "stremio-addon-sdk";
-const { addonBuilder, getRouter } = stremioSDK;
+const { addonBuilder, getRouter, publishToCentral } = stremioSDK;
 
 import express from "express";
 import type {ContentType, Subtitle, Manifest} from "stremio-addon-sdk";
